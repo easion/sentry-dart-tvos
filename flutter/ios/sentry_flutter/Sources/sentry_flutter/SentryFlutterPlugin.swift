@@ -5,7 +5,7 @@ import Sentry._Hybrid
 import sentry_flutter_objc
 #endif
 
-#if os(iOS)
+#if os(iOS) || os(tvOS)
 import Flutter
 import UIKit
 #elseif os(macOS)
@@ -27,7 +27,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         pluginRegistrationTime = Int64(Date().timeIntervalSince1970 * 1000)
 
-#if os(iOS)
+#if os(iOS) || os(tvOS)
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
 #elseif os(macOS)
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger)
@@ -139,16 +139,18 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             let key = arguments?["key"] as? String
             removeTag(key: key, result: result)
 
-        #if !os(tvOS) && !os(watchOS)
+#if !os(tvOS) && !os(watchOS)
         case "discardProfiler":
             discardProfiler(call, result)
 
         case "collectProfile":
             collectProfile(call, result)
-        #endif
+        
 
         case "displayRefreshRate":
             displayRefreshRate(result)
+          
+#endif
 
         case "pauseAppHangTracking":
             pauseAppHangTracking(result)
@@ -333,7 +335,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             }
         }
 
-        #if os(iOS) || targetEnvironment(macCatalyst)
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let appIsActive = UIApplication.shared.applicationState == .active
         #else
         let appIsActive = NSApplication.shared.isActive
@@ -368,7 +370,9 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
            for (key, value) in tags {
                newTags[key] = value
            }
+#if   !os(tvOS)
            PrivateSentrySDKOnly.setReplayTags(newTags)
+#endif
          }
        }
 #endif
@@ -692,10 +696,12 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: "8", message: "Cannot collect profile: end time missing", details: nil))
             return
         }
-
+      
+    #if   !os(tvOS)
         let payload = PrivateSentrySDKOnly.collectProfileBetween(startTime, and: endTime,
                                                                        forTrace: SentryId(uuidString: traceId))
         result(payload)
+      #endif
     }
 
     private func discardProfiler(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
@@ -704,8 +710,9 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: "9", message: "Cannot discard a profiler: trace ID missing", details: nil))
             return
         }
-
+      #if   !os(tvOS)
         PrivateSentrySDKOnly.discardProfiler(forTrace: SentryId(uuidString: traceId))
+      #endif
         result(nil)
     }
 
