@@ -370,7 +370,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
            for (key, value) in tags {
                newTags[key] = value
            }
-#if   !os(tvOS)
+#if   !os(tvOS) && !os(iOS)
            PrivateSentrySDKOnly.setReplayTags(newTags)
 #endif
          }
