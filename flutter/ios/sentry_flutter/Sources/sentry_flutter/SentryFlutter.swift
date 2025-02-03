@@ -112,7 +112,7 @@ public final class SentryFlutter {
 
             options.urlSession = URLSession(configuration: configuration)
         }
-        #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+        #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) /*|| os(tvOS)*/)
             if let replayOptions = data["replay"] as? [String: Any] {
                 switch data["quality"] as? String {
                 case "low":

@@ -162,7 +162,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             crash()
 
         case "captureReplay":
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) /*|| os(tvOS)*/)
             PrivateSentrySDKOnly.captureReplay()
             result(PrivateSentrySDKOnly.getReplayId())
 #else
@@ -353,7 +353,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     }
 
   private func configureReplay(_ arguments: [String: Any]) {
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) /*|| os(tvOS)*/)
        let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
        let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
        PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
@@ -697,7 +697,9 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             return
         }
       
-    #if   !os(tvOS)
+    #if   os(tvOS)
+		result(FlutterError(code: "9", message: "Cannot collect profile: tvOS not support", details: nil))
+    #else
         let payload = PrivateSentrySDKOnly.collectProfileBetween(startTime, and: endTime,
                                                                        forTrace: SentryId(uuidString: traceId))
         result(payload)
