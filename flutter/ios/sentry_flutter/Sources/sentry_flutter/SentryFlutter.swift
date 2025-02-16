@@ -127,12 +127,16 @@ public final class SentryFlutter {
                 options.sessionReplay.onErrorSampleRate =
                     (replayOptions["onErrorSampleRate"] as? NSNumber)?.floatValue ?? 0
 
-                let flutterSdk = data["sdk"] as? [String: Any]
-                options.sessionReplay.setValue(
-                    [
-                        "name": flutterSdk!["name"],
-                        "version": flutterSdk!["version"]
-                    ], forKey: "sdkInfo")
+              if let flutterSdk = data["sdk"] as? [String: Any],
+                 let sdkName = flutterSdk["name"] as? String,
+                 let sdkVersion = flutterSdk["version"] as? String {
+                  /*options.sessionReplay.setValue(
+                      [
+                          "name": sdkName,
+                          "version": sdkVersion
+                      ], forKey: "sdkInfo")
+                   */
+              }
             }
         #endif
     }
